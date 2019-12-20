@@ -13,10 +13,6 @@
   (let ((int (map-int (char->integer char))))
     (and int (integer->char int))))
 
-(define (int->char->int map-char int)
-  (let ((char (map-char (integer->char int))))
-    (and char (char->integer char))))
-
 ;;
 
 (define (ascii-codepoint? x)
@@ -45,7 +41,7 @@
   (let ((cc (ensure-int x)))
     (or (<= 0 cc #x1f) (= cc #x7f))))
 
-(define (ascii-display? x)
+(define (ascii-non-control? x)
   (let ((cc (ensure-int x)))
     (<= #x20 cc #x7e)))
 
@@ -59,7 +55,7 @@
   (let ((cc (ensure-int x)))
     (case cc ((#x09 #x20) #t) (else #f))))
 
-(define (ascii-punctuation? x)
+(define (ascii-other-graphic? x)
   (let ((cc (ensure-int x)))
     (or (<= #x21 cc #x2f)
         (<= #x3a cc #x40)
@@ -118,39 +114,32 @@
       (integer->char (ascii-downcase (char->integer x)))
       (or (ascii-upper-case-value x #x61 26) x)))
 
-(define (ascii-control->display x)
+(define (ascii-control->graphic x)
   (if (char? x)
-      (char->int->char ascii-control->display x)
+      (char->int->char ascii-control->graphic x)
       (or (and (<= 0 x #x1f) (+ x #x40))
           (and (= x #x7f) #x3f))))
 
-(define (ascii-display->control x)
+(define (ascii-graphic->control x)
   (if (char? x)
-      (char->int->char ascii-display->control x)
+      (char->int->char ascii-graphic->control x)
       (or (and (<= #x40 x #x5f) (- x #x40))
           (and (= x #x3f) #x7f))))
 
-(define (ascii-open-bracket char)
-  (case char
-    ((#\( #\[ #\{ #\<) char)
-    (else (and (integer? char) (int->char->int ascii-open-bracket char)))))
-
-(define (ascii-close-bracket char)
-  (case char
-    ((#\) #\] #\} #\>) char)
-    (else (and (integer? char) (int->char->int ascii-close-bracket char)))))
-
 (define (ascii-mirror-bracket char)
-  (case char
-    ((#\() #\))
-    ((#\)) #\()
-    ((#\[) #\])
-    ((#\]) #\[)
-    ((#\{) #\})
-    ((#\}) #\{)
-    ((#\<) #\>)
-    ((#\>) #\<)
-    (else (and (integer? char) (int->char->int ascii-mirror-bracket char)))))
+  (if (integer? char)
+      (let ((char (ascii-mirror-bracket (integer->char char))))
+        (and char (char->integer char)))
+      (case char
+        ((#\() #\))
+        ((#\)) #\()
+        ((#\[) #\])
+        ((#\]) #\[)
+        ((#\{) #\})
+        ((#\}) #\{)
+        ((#\<) #\>)
+        ((#\>) #\<)
+        (else #f))))
 
 (define (ascii-ci-cmp char1 char2)
   (let ((cc1 (ensure-int char1))

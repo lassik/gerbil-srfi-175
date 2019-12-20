@@ -7,10 +7,10 @@
           ascii-string?
 
           ascii-control?
-          ascii-display?
+          ascii-non-control?
           ascii-whitespace?
           ascii-space-or-tab?
-          ascii-punctuation?
+          ascii-other-graphic?
           ascii-upper-case?
           ascii-lower-case?
           ascii-alphabetic?
@@ -25,10 +25,8 @@
           ascii-nth-lower-case
           ascii-upcase
           ascii-downcase
-          ascii-control->display
-          ascii-display->control
-          ascii-open-bracket
-          ascii-close-bracket
+          ascii-control->graphic
+          ascii-graphic->control
           ascii-mirror-bracket
 
           ascii-ci=?
